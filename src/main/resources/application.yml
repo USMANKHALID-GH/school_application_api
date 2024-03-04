@@ -1,0 +1,55 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:schoolDatabase}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:123456789}
+    hikari:
+      maximum-pool-size: 2
+      idle-timeout: 15000
+      connection-timeout: 20000
+      minimum-idle: 2
+      max-lifetime: 30000
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    database: postgresql
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      org:
+        hibernate:
+          format_sql: false
+          envers:
+            default_schema: school_audit
+            store_data_at_delete: true
+  cache:
+    type: redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  mvc:
+    problemdetails:
+      enabled: true
+
+jwt:
+  secret: a2948404D635166546A576E5A7234753778217A25432A462D4A614E645267556BWSFSG
+mail:
+  host: smtp.gmail.com
+  port: 587
+  username: l_____@gmail.com
+  password:  _____
+  default-to: l____@gmail.com
+  default-from: l___@gmail.com
+
+uploadCare:
+  publicKey: 83facff2b9f83162430c
+  secretKey: e3102e3b09b44bfc3300
+
+
