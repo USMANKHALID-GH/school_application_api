@@ -5,6 +5,7 @@ import com.zalisoft.zalisoft.dto.RoleDto;
 import com.zalisoft.zalisoft.dto.StudentAppyDto;
 
 import com.zalisoft.zalisoft.dto.UserInformationDto;
+import com.zalisoft.zalisoft.model.Role;
 import com.zalisoft.zalisoft.model.Student;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,4 +43,10 @@ public interface StudentService {
     Page<Student> search(Pageable pageable,String search);
 
     Student  checkApplicationStatus();
+
+    void checkForDuplicateOfNumber(String phone);
+
+    void checkForDuplicateOfEmail(String email);
+
+
 }

@@ -1,5 +1,6 @@
 package com.zalisoft.zalisoft.dto;
 
+import com.zalisoft.zalisoft.enums.ApplicationStatus;
 import lombok.Data;
 
 @Data
@@ -10,4 +11,5 @@ public class StudentApplyShortDto extends BaseDto{
     private UserMaskedDto user;
     private ScoreDto score;
     private DocumentDto document;
+    private ApplicationStatus applicationStatus;
 }

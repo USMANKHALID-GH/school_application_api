@@ -5,9 +5,7 @@ import com.zalisoft.zalisoft.enums.ResponseMessageEnum;
 import com.zalisoft.zalisoft.exception.BusinessException;
 import com.zalisoft.zalisoft.exception.InvalidPasswordException;
 import com.zalisoft.zalisoft.mapper.UserInformationMapper;
-import com.zalisoft.zalisoft.model.Personal;
-import com.zalisoft.zalisoft.model.User;
-import com.zalisoft.zalisoft.model.UserInformation;
+import com.zalisoft.zalisoft.model.*;
 import com.zalisoft.zalisoft.repository.UserRepository;
 import com.zalisoft.zalisoft.service.RoleService;
 import com.zalisoft.zalisoft.service.UserService;
@@ -18,6 +16,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import javax.print.DocFlavor;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -197,8 +197,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserInformation updateUserInformation(UserInformationDto dto) {
-        var infor= new UserInformation();
+    public UserInformation updateUserInformation(UserInformation infor,UserInformationDto dto) {
         if(!StringUtils.isEmpty(dto.getFirstName())){
             infor.setFirstName(dto.getFirstName());
         }
@@ -206,25 +205,24 @@ public class UserServiceImpl implements UserService {
             infor.setLastName(dto.getLastName());
         }
         if(!StringUtils.isEmpty(dto.getPhone())){
+
             infor.setPhone(dto.getPhone());
         }
-        var address=dto.getAddress();
-        if(!ObjectUtils.isEmpty(address)){
-            if(!StringUtils.isEmpty(address.getCity())){
-                infor.getAddress().setCity(address.getCity());
+        if(ObjectUtils.isNotEmpty(dto.getAddress())){
+            var address = new Address();
+            if(!StringUtils.isEmpty(dto.getAddress().getCountry())){
+                address.setCountry(dto.getAddress().getCountry());
             }
-            if(!StringUtils.isEmpty(address.getState())){
-                infor.getAddress().setState(address.getState());
+            if (!StringUtils.isEmpty(dto.getAddress().getState())){
+                address.setState(dto.getAddress().getState());
             }
-            if(!StringUtils.isEmpty(address.getStreet())){
-                infor.getAddress().setStreet(address.getStreet());
+            if (!StringUtils.isEmpty(dto.getAddress().getCity())){
+                address.setCity(dto.getAddress().getCity());
             }
-            if(!StringUtils.isEmpty(address.getPostalCode())){
-                infor.getAddress().setPostalCode(address.getPostalCode());
+            if (!StringUtils.isEmpty(dto.getAddress().getStreet())){
+                address.setStreet(dto.getAddress().getStreet());
             }
-            if(!StringUtils.isEmpty(address.getCountry())){
-                infor.getAddress().setCountry(address.getCountry());
-            }
+            infor.setAddress(address);
         }
 
         return infor;
@@ -244,6 +242,13 @@ public class UserServiceImpl implements UserService {
         newUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
         return newUser;
 
+    }
+
+    @Override
+    public void assignRole(Long id,Role role) {
+        var user = findById(id);
+        user.setRoles(new HashSet<>(Set.of(role)));
+        userRepository.save(user);
     }
 
 

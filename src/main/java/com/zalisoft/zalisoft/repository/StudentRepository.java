@@ -1,12 +1,10 @@
 package com.zalisoft.zalisoft.repository;
 
 import com.zalisoft.zalisoft.model.Student;
-import com.zalisoft.zalisoft.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -15,13 +13,18 @@ import java.util.Optional;
 @Repository
 public interface StudentRepository extends JpaRepository<Student, Long> {
 
-    Optional<Student> findByUser(User user);
+
+    @Query("select  s from Student s where s.user.id=:userId and s.deleted=false")
+    Optional<Student> findStudentByUserId(@Param("userId") Long userId);
 
     @Query("select s from Student s where s.studentNumber=:no")
     Optional<Student> findUserByStudentNo(String no);
 
     @Query("select s from Student s where s.studentNumber=:studentNumber")
     Optional<Student> checkIfStudentNumberExist(String studentNumber);
+
+    @Query("select s from Student s where s.userInformation.phone=:studentNumber and s.deleted=false")
+    Optional<Student> checkIfPhoneNumberExist(String studentNumber);
 
     @Query("""
        SELECT s FROM Student  s
@@ -56,6 +59,7 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
        or lower(s.userInformation.tcNumber) like lower(concat('%', :search,'%'))
        or lower(s.userInformation.phone) like lower(concat('%', :search,'%')))
        and s.department.id=:departmentId and s.studentNumber <>null 
+       and s.applicationStatus='APPROVED'
          """)
     Page<Student>  findStudentByDepartment(Pageable pageable,Long departmentId,String search);
 

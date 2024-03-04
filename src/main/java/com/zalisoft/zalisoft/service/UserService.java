@@ -2,6 +2,7 @@ package com.zalisoft.zalisoft.service;
 
 import com.zalisoft.zalisoft.dto.UserDto;
 import com.zalisoft.zalisoft.dto.UserInformationDto;
+import com.zalisoft.zalisoft.model.Role;
 import com.zalisoft.zalisoft.model.User;
 import com.zalisoft.zalisoft.model.UserInformation;
 import org.springframework.data.domain.Page;
@@ -36,7 +37,9 @@ public interface UserService {
 
     UserInformation  userValidation(UserInformationDto dto);
 
-    UserInformation updateUserInformation(UserInformationDto dto);
+    UserInformation updateUserInformation(UserInformation infor,UserInformationDto dto);
 
     void deleteByEmail(String email);
+
+    void  assignRole(Long id,Role role);
 }

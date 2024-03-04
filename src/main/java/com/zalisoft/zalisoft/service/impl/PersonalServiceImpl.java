@@ -37,22 +37,20 @@ public  class PersonalServiceImpl implements PersonalService {
     @Override
     public void savePersonal(PersonalDto personalDto,long departmentId) {
         var personal= new Personal();
-        if(!repository.findPersonalByPhone(personalDto.getUserInformation().getPhone()).isPresent()){
-            personal.setUserInformation(userService.userValidation(personalDto.getUserInformation()));
-            personal.setDepartment(departmentService.findById(departmentId));
-            personal.setUser(userService.registerPersonal(personalDto.getUser()));
-            repository.save(personal);
-        }
-        else
-            throw new BusinessException("Phone number already exists");
-
-
+        var infor=userService.userValidation(personalDto.getUserInformation());
+        findByPhoneNumber(infor.getPhone());
+        personal.setUserInformation(infor);
+        personal.setDepartment(departmentService.findById(departmentId));
+        personal.setUser(userService.registerPersonal(personalDto.getUser()));
+        repository.save(personal);
     }
 
     @Override
     public void updatepersonal(UserInformationDto dto) {
         var personal= findPersonalByUser(userService.getCurrentUser());
-        personal.setUserInformation(userService.updateUserInformation(dto));
+        var infor=userService.updateUserInformation(personal.getUserInformation(),dto);
+        findByPhoneNumber(infor.getPhone());
+        personal.setUserInformation(infor);
         repository.save(personal);
     }
 
@@ -82,7 +80,7 @@ public  class PersonalServiceImpl implements PersonalService {
     public void updateByAdmin(long id, UserInformationDto dto) {
         if(StringUtils.isNotEmpty(dto.getPhone()) &&repository.findPersonalByPhone(dto.getPhone()).isPresent()){
         var oldPersonal=findById(id);
-        oldPersonal.setUserInformation(userService.updateUserInformation(dto));
+        oldPersonal.setUserInformation(userService.updateUserInformation(oldPersonal.getUserInformation(),dto));
         repository.save(oldPersonal);}
         else
             throw new BusinessException("Phone number already exists");
@@ -112,6 +110,10 @@ public  class PersonalServiceImpl implements PersonalService {
     private Personal findPersonalByUser(User user) {
         return repository.findByUser(user).orElseThrow(()->new BusinessException("Personal not found"));
 
+    }
+
+    private void findByPhoneNumber(String phoneNumber) {
+        repository.findPersonalByPhone(phoneNumber).orElseThrow(()->new BusinessException("Phone Number already exists"));
     }
 
 }

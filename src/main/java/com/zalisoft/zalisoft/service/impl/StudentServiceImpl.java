@@ -18,10 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static com.zalisoft.zalisoft.util.RandomUtil.generateStudentNumber;
 
@@ -50,6 +48,12 @@ public class StudentServiceImpl implements StudentService {
 
     @Autowired
     private ScoreServiceImpl scoreService;
+
+    @Autowired
+    private RoleService roleService;
+
+
+
 
     private boolean checkDateRange(Parameter parameter){
         var startDate= DateUtil.getLocalDateTime(parameter.getValue());
@@ -89,7 +93,9 @@ public class StudentServiceImpl implements StudentService {
                         });
                 var student = new Student();
                 student.setScore(scoreService.getScore(dto.getScore()));
-                student.setUserInformation(userService.userValidation(dto.getUserInformation()));
+                var studentInformation=userService.userValidation(dto.getUserInformation());
+                checkForDuplicateOfNumber(studentInformation.getPhone());
+                student.setUserInformation(studentInformation);
                 student.setDocuments(documents);
                 student.setDepartment(department);
                 student.setUser(userService.registerStudent(dto.getUser()));
@@ -114,12 +120,6 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public void approve(long id) {
       Student student=findById(id);
-      var roleDto=new RoleDto();
-        roleDto.setName("STUDENT");
-       var prvil= new PrivilegeDto();
-       prvil.setName("STUDENT");
-        roleDto.setPrivileges(Set.of(prvil));
-
         String studentNo=generateStudentNumber();
         if(!repository.checkIfStudentNumberExist(studentNo).isPresent()){
             student.setStudentNumber(studentNo);
@@ -128,9 +128,8 @@ public class StudentServiceImpl implements StudentService {
             student.setStudentNumber(studentNo.substring(0,5)+String.format("%05d", +student.getId()));
         }
         student.getScore().setDeleted(true);
-        var userDto=new UserDto();
-        userDto.setRoles(new HashSet<>(List.of(roleDto)));
-        userService.updateUserByAdmin(student.getUser().getId(),userDto);
+
+        userService.assignRole(student.getUser().getId(), roleService.findByName("STUDENT"));
          student.setApplicationStatus(ApplicationStatus.APPROVED);
         repository.save(student);
     }
@@ -139,7 +138,7 @@ public class StudentServiceImpl implements StudentService {
     public void reject(long id) {
         var student=findById(id);
         student.setApplicationStatus(ApplicationStatus.REJECTED);
-        repository.delete(student);
+        repository.save(student);
 
     }
 
@@ -147,7 +146,7 @@ public class StudentServiceImpl implements StudentService {
     public void setToPending(long id) {
         var student=findById(id);
         student.setApplicationStatus(ApplicationStatus.PENDING);
-        repository.delete(student);
+        repository.save(student);
     }
 
 
@@ -169,8 +168,9 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public void updateByStudent(UserInformationDto dto) {
-        var student= repository.findByUser(userService.getCurrentUser()).get();
-        student.setUserInformation(userService.updateUserInformation(dto));
+
+        var student= repository.findStudentByUserId(userService.getCurrentUser().getId()).get();
+        student.setUserInformation(userService.updateUserInformation(student.getUserInformation(),dto));
         repository.save(student);
     }
 
@@ -179,18 +179,20 @@ public class StudentServiceImpl implements StudentService {
         var person= personalService.findByCurrentUser();
         var student= repository.findStudentByDepartmentPersonal(person.getId(),id);
         if(student.isPresent()){
-            student.get().setUserInformation(userService.updateUserInformation(dto));
+            var studentInformation=userService.updateUserInformation(student.get().getUserInformation(), dto);
+            checkForDuplicateOfNumber(studentInformation.getPhone());
+            student.get().setUserInformation(studentInformation);
+
             repository.save(student.get());
         }
     else
-        throw new BusinessException("");
+        throw new BusinessException("You are not eligible to perform this operation");
 
     }
 
     @Override
     public Page<Student> getAppliedStudents(Pageable pageable) {
         var person= personalService.findByCurrentUser();
-        log.info("person: {}",person.toString());
         return  repository.findStudentByTheirScores(pageable,person.getDepartment().getId());
     }
 
@@ -212,8 +214,26 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Student checkApplicationStatus() {
-        Student student  =repository.findByUser(userService.getCurrentUser()).get();
-        return findById(student.getId());
+        var user= userService.getCurrentUser();
+        log.info("Student: {}",user.getId());
+        var student=repository.findStudentByUserId(user.getId());
+        log.info("Student: {}",student.toString());
+        if(student.isPresent()){
+            return student.get();
+        }
+       throw  new BusinessException("User has not application status contact administration for more details");
+    }
+
+    @Override
+    public void checkForDuplicateOfNumber(String phone) {
+        if(repository.checkIfPhoneNumberExist(phone).isPresent()){
+            throw new BusinessException("Phone number already exists");
+        }
+    }
+
+    @Override
+    public void checkForDuplicateOfEmail(String email) {
+
     }
 
 
