@@ -58,7 +58,7 @@ public class SecurityConfiguration {
 
         http .authorizeHttpRequests(
                         auth->{
-                         auth.requestMatchers("/api/**","/api/auth/login","/api/public/**").permitAll();
+                         auth.requestMatchers("/api/auth/login","/api/public/**").permitAll();
                          auth.requestMatchers("/api/super/**","/api/all/**").hasAuthority(PrivilegeConstant.SUPER);
                          auth.requestMatchers("/api/admin/**","/api/all/**").hasAuthority(PrivilegeConstant.ADMIN);
                          auth.requestMatchers("/api/passive/**").hasAuthority(PrivilegeConstant.PASIF);
