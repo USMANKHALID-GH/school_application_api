@@ -6,7 +6,6 @@ import com.usman.dto.AuthToken;
 import com.usman.dto.BaseResponseDto;
 import com.usman.dto.PersonalDto;
 import com.usman.dto.StudentAppyDto;
-import com.zalisoft.zalisoft.dto.*;
 import com.usman.enums.ResponseMessageEnum;
 import com.usman.exception.BusinessException;
 import com.usman.security.jwt.AuthRequest;
