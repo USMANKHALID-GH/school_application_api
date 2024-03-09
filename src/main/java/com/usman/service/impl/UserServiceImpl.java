@@ -12,9 +12,9 @@ import com.usman.model.User;
 import com.usman.model.UserInformation;
 import com.usman.repository.UserRepository;
 import com.usman.util.SecurityUtils;
-import com.zalisoft.zalisoft.dto.*;
+
 import com.usman.mapper.UserInformationMapper;
-import com.zalisoft.zalisoft.model.*;
+
 import com.usman.service.RoleService;
 import com.usman.service.UserService;
 import jakarta.validation.ConstraintViolationException;

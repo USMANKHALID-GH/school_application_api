@@ -49,7 +49,7 @@ mail:
   default-from: l___@gmail.com
 
 uploadCare:
-  publicKey: 83facff2b9f83162430c
-  secretKey: e3102e3b09b44bfc3300
+  publicKey:
+  secretKey:
 
 

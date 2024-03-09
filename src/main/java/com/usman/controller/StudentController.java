@@ -5,7 +5,6 @@ import com.usman.dto.BaseResponseDto;
 import com.usman.dto.StudentApplyShortDto;
 import com.usman.dto.StudentDto;
 import com.usman.dto.UserInformationDto;
-import com.zalisoft.zalisoft.dto.*;
 import com.usman.mapper.StudentApplyMapper;
 import com.usman.mapper.StudentApplyShortMapper;
 import com.usman.mapper.StudentMapper;
